@@ -7,6 +7,8 @@ pipeline {
         REMOTE_PORT = '3334'
         REMOTE_USER = 'newbie'
         REMOTE_PATH = '/usr/share/nginx/html/jenkins'
+        LOCAL_CONTAINER = 'remote-host'
+        LOCAL_PATH = '/usr/share/nginx/html/jenkins'
         WORKSPACE_NAME = 'khoand2'
         RELEASE_DATE = sh(script: 'date +%Y%m%d', returnStdout: true).trim()
     }
@@ -46,12 +48,42 @@ pipeline {
                     }
                 }
                 
+                stage('Deploy to Local Container') {
+                    steps {
+                        echo "=== DEPLOY TO LOCAL CONTAINER ==="
+                        script {
+                            def releaseDir = "${LOCAL_PATH}/${WORKSPACE_NAME}/deploy/${RELEASE_DATE}"
+                            
+                            sh """
+                                # Create directory structure in container
+                                docker exec ${LOCAL_CONTAINER} mkdir -p ${releaseDir}
+                                
+                                # Copy essential files to container
+                                docker cp index.html ${LOCAL_CONTAINER}:${releaseDir}/
+                                docker cp 404.html ${LOCAL_CONTAINER}:${releaseDir}/
+                                docker cp css ${LOCAL_CONTAINER}:${releaseDir}/
+                                docker cp js ${LOCAL_CONTAINER}:${releaseDir}/
+                                docker cp images ${LOCAL_CONTAINER}:${releaseDir}/
+                                
+                                # Update symlink and cleanup old releases
+                                docker exec ${LOCAL_CONTAINER} bash -c "
+                                    cd ${LOCAL_PATH}/${WORKSPACE_NAME}/deploy
+                                    rm -f current
+                                    ln -s ${RELEASE_DATE} current
+                                    
+                                    # Keep only 5 latest releases
+                                    ls -1t | grep -E '^[0-9]{8}\$' | tail -n +6 | xargs -r rm -rf
+                                "
+                            """
+                        }
+                    }
+                }
+                
                 stage('Deploy to Remote Server') {
                     steps {
                         echo "=== DEPLOY TO REMOTE SERVER ==="
                         script {
                             def releaseDir = "${REMOTE_PATH}/${WORKSPACE_NAME}/deploy/${RELEASE_DATE}"
-                            def currentLink = "${REMOTE_PATH}/${WORKSPACE_NAME}/deploy/current"
                             
                             withCredentials([file(credentialsId: 'remote-ssh-key', variable: 'SSH_KEY')]) {
                                 sh """
@@ -97,6 +129,7 @@ pipeline {
                         "• *Build:* #${env.BUILD_NUMBER}\n" +
                         "• *Release:* ${RELEASE_DATE}\n" +
                         "• *Firebase:* https://khoand-workshop2.web.app\n" +
+                        "• *Local Container:* Files deployed to ${LOCAL_CONTAINER}:${LOCAL_PATH}/${WORKSPACE_NAME}/deploy/current/\n" +
                         "• *Remote:* http://${REMOTE_HOST}/jenkins/${WORKSPACE_NAME}/deploy/current/"
             )
         }
