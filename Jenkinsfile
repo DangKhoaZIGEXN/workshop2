@@ -7,7 +7,7 @@ pipeline {
         REMOTE_PORT = '3334'
         REMOTE_USER = 'newbie'
         REMOTE_PATH = '/usr/share/nginx/html/jenkins'
-        WORKSPACE_NAME = 'workshop2-junior'
+        WORKSPACE_NAME = 'khoand2'
         RELEASE_DATE = sh(script: 'date +%Y%m%d', returnStdout: true).trim()
     }
     
