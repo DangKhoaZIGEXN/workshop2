@@ -1,10 +1,33 @@
 {
   "hosting": {
-    "public": "/",
+    "public": ".",
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**"
+      "**/node_modules/**",
+      "**/*.md",
+      "package*.json",
+      "README.md",
+      ".git/**",
+      ".github/**",
+      "Jenkinsfile"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(js|css)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=31536000"
+          }
+        ]
+      }
     ]
   }
 }
