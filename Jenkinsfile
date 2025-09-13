@@ -40,9 +40,13 @@ pipeline {
                 stage('Deploy to Firebase') {
                     steps {
                         echo "=== DEPLOY TO FIREBASE ==="
-                        withCredentials([string(credentialsId: 'firebase-token', variable: 'FIREBASE_TOKEN')]) {
+                        withCredentials([file(credentialsId: 'firebase-service-account-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                             sh '''
-                                firebase deploy --token "$FIREBASE_TOKEN" --only hosting --project=${PROJECT_NAME}
+                                # Set environment variable for Application Default Credentials
+                                export GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS
+                                
+                                # Deploy using ADC (no token needed)
+                                firebase deploy --only hosting --project=${PROJECT_NAME}
                             '''
                         }
                     }
