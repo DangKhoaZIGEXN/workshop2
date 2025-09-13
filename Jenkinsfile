@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     environment {
-        PROJECT_NAME = 'jenkins-ws2'
+        PROJECT_NAME = 'khoand-workshop2'
         REMOTE_HOST = '118.69.34.46'
         REMOTE_PORT = '3334'
         REMOTE_USER = 'newbie'
@@ -96,7 +96,7 @@ pipeline {
                         "• *Job:* ${env.JOB_NAME}\n" +
                         "• *Build:* #${env.BUILD_NUMBER}\n" +
                         "• *Release:* ${RELEASE_DATE}\n" +
-                        "• *Firebase:* https://jenkins-ws2.web.app\n" +
+                        "• *Firebase:* https://khoand-workshop2.web.app\n" +
                         "• *Remote:* http://${REMOTE_HOST}/jenkins/${WORKSPACE_NAME}/deploy/current/"
             )
         }
