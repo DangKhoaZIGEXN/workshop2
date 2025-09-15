@@ -11,6 +11,8 @@ pipeline {
         LOCAL_PATH = '/usr/share/nginx/html/jenkins'
         WORKSPACE_NAME = 'khoand2'
         RELEASE_DATE = sh(script: 'date +%Y%m%d', returnStdout: true).trim()
+        GIT_COMMIT_SHORT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+        GIT_COMMIT_MSG = sh(script: 'git log -1 --pretty=%B', returnStdout: true).trim()
     }
     
     stages {
@@ -128,9 +130,10 @@ pipeline {
                 channel: '#lnd-2025-workshop',
                 color: 'good',
                 message: ":white_check_mark: *SUCCESS* - Workshop2 deployment completed!\n" +
-                        "• *User:* ${env.BUILD_USER ?: 'System'}\n" +
+                        "• *User:* ${env.BUILD_USER ?: 'Nguyen Dang Khoa'}\n" +
                         "• *Job:* ${env.JOB_NAME}\n" +
                         "• *Build:* #${env.BUILD_NUMBER}\n" +
+                        "• *Commit:* ${GIT_COMMIT_SHORT} - ${GIT_COMMIT_MSG}\n" +
                         "• *Release:* ${RELEASE_DATE}\n" +
                         "• *Firebase:* https://khoand-workshop2.web.app\n" +
                         "• *Local Container:* Files deployed to ${LOCAL_CONTAINER}:${LOCAL_PATH}/${WORKSPACE_NAME}/deploy/current/\n" +
@@ -144,9 +147,10 @@ pipeline {
                 channel: '#lnd-2025-workshop',
                 color: 'danger',
                 message: ":x: *FAILED* - Workshop2 deployment failed!\n" +
-                        "• *User:* ${env.BUILD_USER ?: 'System'}\n" +
+                        "• *User:* ${env.BUILD_USER ?: 'Nguyen Dang Khoa'}\n" +
                         "• *Job:* ${env.JOB_NAME}\n" +
                         "• *Build:* #${env.BUILD_NUMBER}\n" +
+                        "• *Commit:* ${GIT_COMMIT_SHORT} - ${GIT_COMMIT_MSG}\n" +
                         "• *Error:* Check Jenkins console for details"
             )
         }
